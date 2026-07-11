@@ -235,12 +235,12 @@ export default function Cranes() {
               </p>
 
               {/* Specification Toggle */}
-              <button 
+              {/* <button 
                 onClick={() => toggle(crane._id)} 
                 className="text-red-500 text-xs font-bold mb-4 text-left hover:text-red-700 flex items-center gap-1 transition"
               >
                 {openId === crane._id ? "✕ Hide Specs" : "→ View Key Specs"}
-              </button>
+              </button> */}
 
               {openId === crane._id && crane.specs && (
                 <ul className="bg-gray-50 p-4 rounded-xl mb-4 text-sm space-y-2 border border-gray-100 animate-in fade-in slide-in-from-top-1 duration-300">
