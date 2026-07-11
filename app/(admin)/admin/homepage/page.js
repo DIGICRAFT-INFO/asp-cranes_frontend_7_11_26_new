@@ -128,7 +128,7 @@ export default function HomepagePage() {
         <button onClick={addSlide} className="btn-secondary w-full justify-center"><Plus className="w-4 h-4" /> Add Slide</button>
       </Section>
 
-      <Section title="About Section">
+      <Section title="About Section" defaultOpen>
         <div><label className="admin-label">Tagline</label><input {...I('about.tagline', 'ABOUT US')} /></div>
         <div><label className="admin-label">Title</label><input {...I('about.title')} /></div>
         <div>
@@ -143,12 +143,12 @@ export default function HomepagePage() {
         </div>
       </Section>
 
-      <Section title="Services Section Header">
+      <Section title="Services Section Header" defaultOpen>
         <div><label className="admin-label">Tagline</label><input {...I('services.tagline', 'OUR SERVICES')} /></div>
         <div><label className="admin-label">Title</label><input {...I('services.title')} /></div>
       </Section>
 
-      <Section title="Advantages Section">
+      <Section title="Advantages Section" defaultOpen>
         <div><label className="admin-label">Title</label><input {...I('advantages.title')} /></div>
         <div><label className="admin-label">Subtitle</label><input {...I('advantages.subtitle')} /></div>
         <div><label className="admin-label">Customer Points (one per line)</label>
@@ -165,17 +165,17 @@ export default function HomepagePage() {
         <div><label className="admin-label">Button Link</label><input {...I('advantages.btnLink', '/contact')} /></div>
       </Section>
 
-      <Section title="Blog Section Header">
+      <Section title="Blog Section Header" defaultOpen>
         <div><label className="admin-label">Title</label><input {...I('blog.title', 'Industry Insights')} /></div>
         <div><label className="admin-label">Subtitle</label><input {...I('blog.subtitle')} /></div>
       </Section>
 
-      <Section title="FAQ Section Header">
+      <Section title="FAQ Section Header" defaultOpen>
         <div><label className="admin-label">Tagline</label><input {...I('faq.tagline', 'GOT QUESTIONS?')} /></div>
         <div><label className="admin-label">Title</label><input {...I('faq.title')} /></div>
       </Section>
 
-      <Section title="CTA Banner">
+      <Section title="CTA Banner" defaultOpen>
         <div><label className="admin-label">Title</label><input {...I('cta.title', 'Need to rent a crane?')} /></div>
         <div><label className="admin-label">Subtitle</label><input {...I('cta.subtitle')} /></div>
         <div><label className="admin-label">Button Text</label><input {...I('cta.btnText')} /></div>
