@@ -4,6 +4,7 @@ import adminApi from '@/lib/adminApi';
 import toast from 'react-hot-toast';
 import { Globe, Save, Plus, Trash2, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import MediaUploader from '@/components/admin/MediaUploader';
 
 const Section = ({ title, children, defaultOpen = false }) => {
   const [open, setOpen] = useState(defaultOpen);
@@ -102,7 +103,17 @@ export default function HomepagePage() {
               <div><label className="admin-label">Title</label><input className="admin-input" value={slide.title} onChange={e => setSlide(i, 'title', e.target.value)} placeholder="Crane type name" /></div>
               <div><label className="admin-label">Subtitle</label><input className="admin-input" value={slide.subtitle} onChange={e => setSlide(i, 'subtitle', e.target.value)} /></div>
               <div className="col-span-2"><label className="admin-label">Description</label><textarea className="admin-input" style={{ resize: 'none' }} rows={2} value={slide.description} onChange={e => setSlide(i, 'description', e.target.value)} /></div>
-              <div><label className="admin-label">Image URL</label><input className="admin-input" value={slide.image} onChange={e => setSlide(i, 'image', e.target.value)} placeholder="https://..." /></div>
+            </div>
+            <div className="col-span-2">
+              <MediaUploader
+                label="Slide Image"
+                value={slide.image}
+                onChange={url => setSlide(i, 'image', url)}
+                accept="image/*"
+                placeholder="https://images.unsplash.com/..."
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
               <div><label className="admin-label">Button 1 Text</label><input className="admin-input" value={slide.btn1Text} onChange={e => setSlide(i, 'btn1Text', e.target.value)} /></div>
               <div><label className="admin-label">Button 1 Link</label><input className="admin-input" value={slide.btn1Link} onChange={e => setSlide(i, 'btn1Link', e.target.value)} /></div>
               <div><label className="admin-label">Button 2 Text</label><input className="admin-input" value={slide.btn2Text} onChange={e => setSlide(i, 'btn2Text', e.target.value)} /></div>
@@ -169,7 +180,13 @@ export default function HomepagePage() {
         <div><label className="admin-label">Subtitle</label><input {...I('cta.subtitle')} /></div>
         <div><label className="admin-label">Button Text</label><input {...I('cta.btnText')} /></div>
         <div><label className="admin-label">Button Link</label><input {...I('cta.btnLink', '/contact')} /></div>
-        <div><label className="admin-label">Image URL</label><input {...I('cta.image')} /></div>
+        <MediaUploader
+          label="CTA Image"
+          value={data.cta?.image || ''}
+          onChange={url => set('cta.image', url)}
+          accept="image/*"
+          placeholder="https://..."
+        />
       </Section>
 
       <div className="flex justify-end pb-6">

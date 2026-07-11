@@ -29,11 +29,17 @@ export default function Hero() {
 
         if (json.success && json.data?.hero?.slides) {
           // Map local images to the dynamic API text elements
-          const dynamicSlides = json.data.hero.slides.map((slide, idx) => ({
-            ...slide,
-            // Use image from API if it exists, otherwise fall back to local array
-            imageSrc: slide.image || localImages[idx % localImages.length],
-          }));
+          const dynamicSlides = json.data.hero.slides.map((slide, idx) => {
+            let imageSrc;
+            const img = slide.image;
+            // Use API image only if it looks like a valid absolute URL
+            if (img && (img.startsWith('http://') || img.startsWith('https://') || img.startsWith('/'))) {
+              imageSrc = img;
+            } else {
+              imageSrc = localImages[idx % localImages.length];
+            }
+            return { ...slide, imageSrc };
+          });
           setSlides(dynamicSlides);
         }
       } catch (error) {
