@@ -177,7 +177,7 @@ function WeatherWidget() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs font-bold uppercase" style={{ color: '#64748b', letterSpacing: '0.15em' }}>📍 Raipur, CG</p>
+          <p className="text-xs font-bold uppercase" style={{ color: '#64748b', letterSpacing: '0.15em' }}> Raipur, CG</p>
           <p className="text-sm font-semibold text-white mt-0.5">Live Weather</p>
         </div>
         <div className="text-4xl">{icon}</div>
