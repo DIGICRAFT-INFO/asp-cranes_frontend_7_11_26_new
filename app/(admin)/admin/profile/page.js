@@ -211,10 +211,10 @@ export default function ProfilePage() {
           </div>
 
           {[
-            { key: 'currentPassword', label: 'Current Password', placeholder: '••••••••' },
-            { key: 'newPassword', label: 'New Password', placeholder: 'Min. 6 characters' },
-            { key: 'confirmPassword', label: 'Confirm New Password', placeholder: 'Repeat new password' },
-          ].map(({ key, label, placeholder }) => (
+            { key: 'currentPassword', label: 'Current Password', placeholder: '••••••••', ac: 'current-password' },
+            { key: 'newPassword', label: 'New Password', placeholder: 'Min. 6 characters', ac: 'new-password' },
+            { key: 'confirmPassword', label: 'Confirm New Password', placeholder: 'Repeat new password', ac: 'new-password' },
+          ].map(({ key, label, placeholder, ac }) => (
             <div key={key}>
               <label className="admin-label">{label}</label>
               <div className="relative">
@@ -226,6 +226,7 @@ export default function ProfilePage() {
                   className="admin-input"
                   style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
                   placeholder={placeholder}
+                  autoComplete={ac}
                   required
                 />
                 <button type="button"
