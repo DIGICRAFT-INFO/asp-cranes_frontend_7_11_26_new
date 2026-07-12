@@ -1,16 +1,21 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import adminApi from '@/lib/adminApi';
 import toast from 'react-hot-toast';
-import { Plus, Pencil, Trash2, Search, X, Loader2, Briefcase, ToggleLeft, ToggleRight } from 'lucide-react';
+import {
+  Plus, Pencil, Trash2, Search, X, Loader2, Briefcase,
+  ToggleLeft, ToggleRight, InboxIcon, Mail, Phone,
+  FileText, CheckCheck, Eye, ChevronDown, ChevronUp,
+} from 'lucide-react';
 
+// ─── JOBS TAB ─────────────────────────────────────────────────────────────────
 const emptyForm = {
   title: '', department: 'General', location: 'On-site', employmentType: 'Full-time',
   experience: '', description: '', responsibilities: '', requirements: '',
   isActive: true, order: 0,
 };
 
-export default function CareersPage() {
+function JobsTab() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -27,15 +32,10 @@ export default function CareersPage() {
   useEffect(() => { fetchAll(); }, []);
 
   const filtered = items.filter(i => !search || i.title.toLowerCase().includes(search.toLowerCase()));
-
   const openCreate = () => { setEditItem(null); setForm(emptyForm); setShowModal(true); };
   const openEdit = (item) => {
     setEditItem(item);
-    setForm({
-      ...item,
-      responsibilities: (item.responsibilities || []).join('\n'),
-      requirements: (item.requirements || []).join('\n'),
-    });
+    setForm({ ...item, responsibilities: (item.responsibilities || []).join('\n'), requirements: (item.requirements || []).join('\n') });
     setShowModal(true);
   };
 
@@ -44,11 +44,7 @@ export default function CareersPage() {
     if (!form.title.trim()) return toast.error('Job title required');
     setSaving(true);
     try {
-      const payload = {
-        ...form,
-        responsibilities: form.responsibilities ? form.responsibilities.split('\n').filter(Boolean) : [],
-        requirements: form.requirements ? form.requirements.split('\n').filter(Boolean) : [],
-      };
+      const payload = { ...form, responsibilities: form.responsibilities ? form.responsibilities.split('\n').filter(Boolean) : [], requirements: form.requirements ? form.requirements.split('\n').filter(Boolean) : [] };
       if (editItem) {
         const r = await adminApi.put(`/careers/${editItem._id}`, payload);
         setItems(prev => prev.map(i => i._id === editItem._id ? r.data.data : i));
@@ -78,12 +74,9 @@ export default function CareersPage() {
   const FC = (k) => ({ checked: !!form[k], onChange: e => setForm(f => ({ ...f, [k]: e.target.checked })) });
 
   return (
-    <div className="animate-fade-in space-y-5">
+    <div className="space-y-5">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-xl font-bold text-white flex items-center gap-2"><Briefcase className="w-5 h-5 text-orange-400" /> Careers</h1>
-          <p className="text-slate-400 text-xs">{items.length} total job openings</p>
-        </div>
+        <p className="text-slate-400 text-xs">{items.length} total job openings</p>
         <button onClick={openCreate} className="btn-primary"><Plus className="w-4 h-4" /> Add Job Opening</button>
       </div>
       <div className="relative max-w-sm">
@@ -105,10 +98,7 @@ export default function CareersPage() {
               </tr></thead>
               <tbody>{filtered.map(item => (
                 <tr key={item._id} className="hover:bg-slate-700/20 transition-colors">
-                  <td className="table-cell">
-                    <p className="text-white text-sm font-medium">{item.title}</p>
-                    <p className="text-slate-500 text-xs line-clamp-1 max-w-64">{item.experience}</p>
-                  </td>
+                  <td className="table-cell"><p className="text-white text-sm font-medium">{item.title}</p><p className="text-slate-500 text-xs">{item.experience}</p></td>
                   <td className="table-cell text-slate-400 text-xs">{item.department}</td>
                   <td className="table-cell text-slate-400 text-xs">{item.location}</td>
                   <td className="table-cell text-slate-400 text-xs">{item.employmentType}</td>
@@ -137,66 +127,225 @@ export default function CareersPage() {
               <button onClick={() => setShowModal(false)} className="btn-ghost p-1.5"><X className="w-5 h-5" /></button>
             </div>
             <form onSubmit={handleSave} className="p-6 space-y-4">
-              <div>
-                <label className="admin-label">Job Title *</label>
-                <input className="admin-input" {...F('title')} required placeholder="e.g. Crane Operator" />
+              <div><label className="admin-label">Job Title *</label><input className="admin-input" {...F('title')} required placeholder="e.g. Crane Operator" /></div>
+              <div className="grid grid-cols-2 gap-4">
+                <div><label className="admin-label">Department</label><input className="admin-input" {...F('department')} placeholder="e.g. Operations" /></div>
+                <div><label className="admin-label">Location</label><input className="admin-input" {...F('location')} placeholder="e.g. Pune, Maharashtra" /></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="admin-label">Department</label>
-                  <input className="admin-input" {...F('department')} placeholder="e.g. Operations" />
-                </div>
-                <div>
-                  <label className="admin-label">Location</label>
-                  <input className="admin-input" {...F('location')} placeholder="e.g. Pune, Maharashtra" />
-                </div>
+                <div><label className="admin-label">Employment Type</label><select className="admin-input" {...F('employmentType')}><option>Full-time</option><option>Part-time</option><option>Contract</option><option>Internship</option></select></div>
+                <div><label className="admin-label">Experience</label><input className="admin-input" {...F('experience')} placeholder="e.g. 2-4 years" /></div>
               </div>
+              <div><label className="admin-label">Description</label><textarea className="admin-input resize-none" rows={3} {...F('description')} placeholder="Role overview..." /></div>
+              <div><label className="admin-label">Responsibilities (one per line)</label><textarea className="admin-input resize-none" rows={3} {...F('responsibilities')} /></div>
+              <div><label className="admin-label">Requirements (one per line)</label><textarea className="admin-input resize-none" rows={3} {...F('requirements')} /></div>
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="admin-label">Employment Type</label>
-                  <select className="admin-input" {...F('employmentType')}>
-                    <option>Full-time</option>
-                    <option>Part-time</option>
-                    <option>Contract</option>
-                    <option>Internship</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="admin-label">Experience</label>
-                  <input className="admin-input" {...F('experience')} placeholder="e.g. 2-4 years" />
-                </div>
-              </div>
-              <div>
-                <label className="admin-label">Description</label>
-                <textarea className="admin-input resize-none" rows={3} {...F('description')} placeholder="Role overview..." />
-              </div>
-              <div>
-                <label className="admin-label">Responsibilities (one per line)</label>
-                <textarea className="admin-input resize-none" rows={3} {...F('responsibilities')} placeholder={"Operate and maintain heavy cranes\nEnsure site safety compliance"} />
-              </div>
-              <div>
-                <label className="admin-label">Requirements (one per line)</label>
-                <textarea className="admin-input resize-none" rows={3} {...F('requirements')} placeholder={"Valid crane operator license\n3+ years relevant experience"} />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="admin-label">Order</label>
-                  <input type="number" className="admin-input" value={form.order} onChange={e => setForm(f => ({ ...f, order: Number(e.target.value) }))} />
-                </div>
-                <div className="flex items-center gap-6 pt-5">
-                  <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" {...FC('isActive')} className="rounded" /><span className="text-slate-300 text-sm">Open (visible on site)</span></label>
-                </div>
+                <div><label className="admin-label">Order</label><input type="number" className="admin-input" value={form.order} onChange={e => setForm(f => ({ ...f, order: Number(e.target.value) }))} /></div>
+                <div className="flex items-center gap-2 pt-5"><input type="checkbox" {...FC('isActive')} className="rounded" /><span className="text-slate-300 text-sm">Open (visible on site)</span></div>
               </div>
               <div className="flex justify-end gap-3 pt-2 border-t border-slate-700">
                 <button type="button" onClick={() => setShowModal(false)} className="btn-secondary">Cancel</button>
-                <button type="submit" disabled={saving} className="btn-primary">
-                  {saving ? <><Loader2 className="w-4 h-4 animate-spin" />Saving...</> : editItem ? 'Update' : 'Create'}
-                </button>
+                <button type="submit" disabled={saving} className="btn-primary">{saving ? <><Loader2 className="w-4 h-4 animate-spin" />Saving...</> : editItem ? 'Update' : 'Create'}</button>
               </div>
             </form>
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── APPLICATIONS TAB ─────────────────────────────────────────────────────────
+function ApplicationsTab() {
+  const [apps, setApps] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [expanded, setExpanded] = useState(null);
+  const [filter, setFilter] = useState('all');
+
+  const fetchApps = useCallback(async () => {
+    try {
+      const r = await adminApi.get('/career-applications');
+      setApps(r.data.data || []);
+      setUnreadCount(r.data.unreadCount || 0);
+    } catch { toast.error('Failed to load applications'); }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { fetchApps(); }, [fetchApps]);
+
+  const markRead = async (id) => {
+    try {
+      await adminApi.put(`/career-applications/${id}/read`);
+      setApps(prev => prev.map(a => a._id === id ? { ...a, isRead: true } : a));
+      setUnreadCount(u => Math.max(0, u - 1));
+    } catch { /* silent */ }
+  };
+
+  const markAllRead = async () => {
+    try {
+      await adminApi.put('/career-applications/read-all');
+      setApps(prev => prev.map(a => ({ ...a, isRead: true })));
+      setUnreadCount(0);
+      toast.success('All marked as read');
+    } catch { toast.error('Failed'); }
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm('Delete this application?')) return;
+    try {
+      await adminApi.delete(`/career-applications/${id}`);
+      setApps(prev => prev.filter(a => a._id !== id));
+      toast.success('Deleted');
+    } catch { toast.error('Delete failed'); }
+  };
+
+  const toggleExpand = (id, isRead) => {
+    setExpanded(prev => prev === id ? null : id);
+    if (!isRead) markRead(id);
+  };
+
+  const filtered = filter === 'unread' ? apps.filter(a => !a.isRead) : apps;
+
+  return (
+    <div className="space-y-4">
+      {/* Toolbar */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-3">
+          <p className="text-slate-400 text-xs">{apps.length} total applications</p>
+          {unreadCount > 0 && (
+            <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-red-500/20 text-red-400">
+              {unreadCount} unread
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex rounded-lg overflow-hidden border border-slate-700">
+            {['all', 'unread'].map(f => (
+              <button key={f} onClick={() => setFilter(f)}
+                className={`px-3 py-1.5 text-xs font-medium transition-colors ${filter === f ? 'bg-red-600 text-white' : 'text-slate-400 hover:text-white'}`}>
+                {f === 'all' ? 'All' : `Unread (${unreadCount})`}
+              </button>
+            ))}
+          </div>
+          {unreadCount > 0 && (
+            <button onClick={markAllRead} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 hover:text-white transition-colors">
+              <CheckCheck className="w-3.5 h-3.5" /> Mark all read
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* List */}
+      {loading ? (
+        <div className="flex items-center justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-orange-400" /></div>
+      ) : filtered.length === 0 ? (
+        <div className="text-center py-16 text-slate-500">
+          <InboxIcon className="w-12 h-12 mx-auto mb-3 opacity-20" />
+          <p>{filter === 'unread' ? 'No unread applications' : 'No applications yet'}</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {filtered.map(app => (
+            <div key={app._id}
+              className={`admin-card p-0 overflow-hidden transition-all ${!app.isRead ? 'border-l-2 border-l-red-500' : ''}`}>
+              {/* Row */}
+              <div
+                className="flex items-center gap-4 px-5 py-4 cursor-pointer hover:bg-slate-700/20"
+                onClick={() => toggleExpand(app._id, app.isRead)}>
+                {/* Unread dot */}
+                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${app.isRead ? 'bg-transparent' : 'bg-red-500'}`} />
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-white text-sm font-semibold">{app.name}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-orange-500/15 text-orange-400 font-medium">{app.jobTitle}</span>
+                  </div>
+                  <div className="flex items-center gap-3 mt-0.5 flex-wrap">
+                    <span className="flex items-center gap-1 text-xs text-slate-400"><Mail className="w-3 h-3" />{app.email}</span>
+                    {app.phone && <span className="flex items-center gap-1 text-xs text-slate-400"><Phone className="w-3 h-3" />{app.phone}</span>}
+                    <span className="text-[10px] text-slate-500">{new Date(app.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                  </div>
+                </div>
+                {/* Actions */}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <button onClick={(e) => { e.stopPropagation(); handleDelete(app._id); }}
+                    className="btn-danger p-1.5 opacity-0 group-hover:opacity-100" title="Delete">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                  {expanded === app._id ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
+                </div>
+              </div>
+              {/* Expanded cover letter */}
+              {expanded === app._id && (
+                <div className="px-5 pb-5 border-t border-slate-700/50">
+                  <div className="flex items-center gap-2 mt-4 mb-2">
+                    <FileText className="w-4 h-4 text-slate-400" />
+                    <span className="text-xs font-semibold text-slate-300 uppercase tracking-wide">Cover Letter</span>
+                  </div>
+                  <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap bg-slate-800/50 rounded-xl p-4">
+                    {app.coverLetter}
+                  </p>
+                  <div className="flex justify-end mt-3">
+                    <button onClick={() => handleDelete(app._id)}
+                      className="flex items-center gap-1.5 text-xs text-red-400 hover:text-red-300 transition-colors">
+                      <Trash2 className="w-3.5 h-3.5" /> Delete Application
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── MAIN PAGE ────────────────────────────────────────────────────────────────
+export default function CareersPage() {
+  const [tab, setTab] = useState('jobs');
+  const [appCount, setAppCount] = useState(0);
+
+  useEffect(() => {
+    adminApi.get('/career-applications?limit=1')
+      .then(r => setAppCount(r.data.unreadCount || 0))
+      .catch(() => {});
+  }, []);
+
+  return (
+    <div className="animate-fade-in space-y-5">
+      {/* Header */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-xl font-bold text-white flex items-center gap-2">
+            <Briefcase className="w-5 h-5 text-orange-400" /> Careers
+          </h1>
+          <p className="text-slate-400 text-xs mt-0.5">Manage job openings and review applications</p>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-1 border-b border-slate-700 pb-0">
+        {[
+          { key: 'jobs', label: 'Job Openings', icon: Briefcase },
+          { key: 'applications', label: 'Career Enquiries', icon: InboxIcon, badge: appCount },
+        ].map(({ key, label, icon: Icon, badge }) => (
+          <button key={key} onClick={() => setTab(key)}
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-t-lg transition-all relative ${tab === key ? 'text-white border-b-2 border-red-500' : 'text-slate-400 hover:text-white'}`}>
+            <Icon className="w-4 h-4" />
+            {label}
+            {badge > 0 && (
+              <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center">
+                {badge}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Tab content */}
+      {tab === 'jobs' ? <JobsTab /> : <ApplicationsTab />}
     </div>
   );
 }
