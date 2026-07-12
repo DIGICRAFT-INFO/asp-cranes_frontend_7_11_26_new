@@ -70,6 +70,15 @@ export default function HomepagePage() {
   const removeSlide = (i) => setData(prev => ({ ...prev, hero: { ...prev.hero, slides: prev.hero.slides.filter((_, idx) => idx !== i) } }));
   const setSlide = (i, key, val) => setData(prev => { const slides = [...(prev.hero?.slides || [])]; slides[i] = { ...slides[i], [key]: val }; return { ...prev, hero: { ...prev.hero, slides } }; });
 
+  // whoWeAre cards helpers (stored in homepage.whoWeAre.cards)
+  const setWhoCard = (i, key, val) => setData(prev => {
+    const cards = [...(prev.whoWeAre?.cards || [])];
+    cards[i] = { ...cards[i], [key]: val };
+    return { ...prev, whoWeAre: { ...prev.whoWeAre, cards } };
+  });
+  const addWhoCard = () => setData(prev => ({ ...prev, whoWeAre: { ...prev.whoWeAre, cards: [...(prev.whoWeAre?.cards || []), { title: '', description: '', image: '', link: '/' }] } }));
+  const removeWhoCard = (i) => setData(prev => ({ ...prev, whoWeAre: { ...prev.whoWeAre, cards: (prev.whoWeAre?.cards || []).filter((_, idx) => idx !== i) } }));
+
   if (loading) return <div className="flex items-center justify-center py-24"><Loader2 className="w-8 h-8 animate-spin" style={{ color: '#f87171' }} /></div>;
   if (!data) return <div className="text-center py-24" style={{ color: '#64748b' }}>Failed to load homepage data</div>;
 
@@ -175,8 +184,7 @@ export default function HomepagePage() {
         <div><label className="admin-label">Title</label><input {...I('faq.title')} /></div>
       </Section>
 
-      <Section title="CTA Banner" defaultOpen>
-        <div><label className="admin-label">Title</label><input {...I('cta.title', 'Need to rent a crane?')} /></div>
+      <Section title="CTA Banner" defaultOpen>        <div><label className="admin-label">Title</label><input {...I('cta.title', 'Need to rent a crane?')} /></div>
         <div><label className="admin-label">Subtitle</label><input {...I('cta.subtitle')} /></div>
         <div><label className="admin-label">Button Text</label><input {...I('cta.btnText')} /></div>
         <div><label className="admin-label">Button Link</label><input {...I('cta.btnLink', '/contact')} /></div>
