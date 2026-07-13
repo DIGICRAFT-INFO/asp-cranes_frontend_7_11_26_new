@@ -4,6 +4,7 @@ import About from "./About";
 import Projects from "./Projects";
 import Services from "./Services";
 import Contact from "@/homepage/Contact";
+import WhoWeAre from "@/homepage/WhoWeAre";
 import banner from "@/public/about/banner.jpg"
 
 export default function page() {
@@ -18,9 +19,10 @@ export default function page() {
         ]}
       />
       <About/>
-       <Services/>
+      <WhoWeAre/>
+      <Services/>
       {/* <Projects/> */}
-     <Contact/>
+      <Contact/>
     </div>
   );
 }
