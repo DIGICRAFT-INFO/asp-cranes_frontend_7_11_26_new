@@ -66,7 +66,7 @@ export default function Services() {
               Reliable Solutions for Heavy & <br /> Industrial Operations
             </h2>
           </div>
-          <Button1 button1={"See More"} link="/our-cranes" />
+          <Button1 button1={"See More"} link="/services" />
         </div>
 
         {/* Services Grid */}
