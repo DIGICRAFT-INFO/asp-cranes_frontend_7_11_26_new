@@ -5,56 +5,57 @@ import { HardHat, Ruler, Construction, Loader2, CheckCircle2, ChevronDown, Chevr
 import Image from "next/image";
 import { apiFetch } from "@/lib/api";
 
-// ─── Icon mapping by title keywords ──────────────────────────────────────────
-const getIcon = (title = "", iconClass = "w-8 h-8 text-orange-600") => {
+// ─── Icon by title ────────────────────────────────────────────────────────────
+const getIcon = (title = "") => {
   const t = title.toLowerCase();
-  if (t.includes("shift") || t.includes("load")) return <Construction className={iconClass} />;
-  if (t.includes("winch") || t.includes("handl")) return <Ruler className={iconClass} />;
-  return <HardHat className={iconClass} />;
+  const cls = "w-7 h-7 text-red-600";
+  if (t.includes("shift") || t.includes("load")) return <Construction className={cls} />;
+  if (t.includes("winch") || t.includes("handl")) return <Ruler className={cls} />;
+  return <HardHat className={cls} />;
 };
 
-// ─── Single Service Card ──────────────────────────────────────────────────────
-function ServiceCard({ service, index }) {
+// ─── Service Card ─────────────────────────────────────────────────────────────
+function ServiceCard({ service }) {
   const [expanded, setExpanded] = useState(false);
-  const hasImage = service.images?.length > 0 || service.image;
   const coverImage = service.images?.[0] || service.image || null;
   const hasFeatures = service.features?.length > 0;
-  const hasSubtitle = !!service.subtitle;
+  const canExpand = hasFeatures || (service.description?.length > 120) || (service.images?.length > 1);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col">
+    <div className="group flex flex-col h-full bg-white rounded-2xl border border-gray-100 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+
       {/* Cover Image */}
-      {hasImage && (
-        <div className="relative w-full h-48 overflow-hidden">
-          <Image
-            src={coverImage}
-            alt={service.title}
-            fill
-            className="object-cover transition-transform duration-500 hover:scale-105"
-          />
+      {coverImage && (
+        <div className="relative w-full h-48 overflow-hidden flex-shrink-0">
+          <Image src={coverImage} alt={service.title} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
           {service.isFeatured && (
-            <span className="absolute top-3 left-3 flex items-center gap-1 bg-red-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
-              <Star className="w-3 h-3" /> Featured
+            <span className="absolute top-3 left-3 flex items-center gap-1 bg-red-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow">
+              <Star className="w-3 h-3 fill-white" /> Featured
             </span>
           )}
+          {/* Red gradient overlay bottom */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
         </div>
       )}
 
-      {/* Card Body */}
-      <div className="p-6 flex flex-col flex-1">
-        {/* Icon + Title */}
-        <div className="flex items-start gap-4 mb-3">
-          <div className="relative flex-shrink-0 mt-0.5">
-            <div className="absolute -inset-2 bg-red-100 rounded-full opacity-50 scale-110" />
-            <div className="relative">{getIcon(service.title)}</div>
+      {/* Card Body — flex-1 so all cards stretch equally */}
+      <div className="flex flex-col flex-1 p-6">
+
+        {/* Icon + Title + Subtitle */}
+        <div className="flex items-start gap-3 mb-3">
+          <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center">
+            {getIcon(service.title)}
           </div>
           <div>
-            <h3 className="text-lg font-bold text-gray-900 leading-snug">{service.title}</h3>
-            {hasSubtitle && (
-              <p className="text-xs text-orange-600 font-semibold mt-0.5">{service.subtitle}</p>
+            <h3 className="text-base font-bold text-gray-900 leading-snug">{service.title}</h3>
+            {service.subtitle && (
+              <p className="text-xs text-red-600 font-semibold mt-0.5 leading-tight">{service.subtitle}</p>
             )}
           </div>
         </div>
+
+        {/* Divider */}
+        <div className="h-px bg-gray-100 mb-3" />
 
         {/* Description */}
         {service.description && (
@@ -63,36 +64,42 @@ function ServiceCard({ service, index }) {
           </p>
         )}
 
-        {/* Features list */}
+        {/* Features — only when expanded */}
         {hasFeatures && expanded && (
-          <ul className="mt-4 space-y-1.5">
+          <ul className="mt-4 space-y-2">
             {service.features.map((f, i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
-                <CheckCircle2 className="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
                 {f}
               </li>
             ))}
           </ul>
         )}
 
-        {/* Extra images (thumbnails) when expanded */}
+        {/* Extra image thumbnails — only when expanded */}
         {service.images?.length > 1 && expanded && (
-          <div className="mt-4 flex gap-2 flex-wrap">
+          <div className="mt-3 flex gap-2 flex-wrap">
             {service.images.slice(1).map((img, i) => (
-              <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-100">
+              <div key={i} className="relative w-14 h-14 rounded-lg overflow-hidden border border-gray-100">
                 <Image src={img} alt="" fill className="object-cover" />
               </div>
             ))}
           </div>
         )}
 
-        {/* Expand toggle — only if there's more to show */}
-        {(hasFeatures || service.description?.length > 120 || service.images?.length > 1) && (
+        {/* Spacer pushes button to bottom */}
+        <div className="flex-1" />
+
+        {/* Read more toggle — always at bottom */}
+        {canExpand && (
           <button
             onClick={() => setExpanded(e => !e)}
-            className="mt-4 flex items-center gap-1 text-xs font-semibold text-orange-600 hover:text-orange-700 transition-colors self-start"
+            className="mt-4 flex items-center gap-1.5 text-xs font-bold text-red-600 hover:text-red-700 transition-colors self-start border-b border-red-200 hover:border-red-500 pb-0.5"
           >
-            {expanded ? <><ChevronUp className="w-3.5 h-3.5" /> Show less</> : <><ChevronDown className="w-3.5 h-3.5" /> Read more</>}
+            {expanded
+              ? <><ChevronUp className="w-3.5 h-3.5" /> Show less</>
+              : <><ChevronDown className="w-3.5 h-3.5" /> Read more</>
+            }
           </button>
         )}
       </div>
@@ -100,7 +107,7 @@ function ServiceCard({ service, index }) {
   );
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+// ─── Main Section ─────────────────────────────────────────────────────────────
 const GeneralConstruction = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -108,44 +115,36 @@ const GeneralConstruction = () => {
 
   useEffect(() => {
     apiFetch("/services")
-      .then((result) => {
-        if (result.success) setServices(result.data);
-        else throw new Error("Failed to load");
-      })
-      .catch((err) => setError(err.message))
+      .then((r) => { if (r.success) setServices(r.data); else throw new Error("Failed"); })
+      .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="w-8 h-8 text-orange-600 animate-spin" />
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="flex justify-center items-center h-64">
+      <Loader2 className="w-8 h-8 text-red-600 animate-spin" />
+    </div>
+  );
 
-  if (error) {
-    return (
-      <div className="text-center py-12 text-red-600 font-medium">
-        Error loading services: {error}
-      </div>
-    );
-  }
+  if (error) return (
+    <div className="text-center py-12 text-red-600 font-medium">Error loading services: {error}</div>
+  );
 
   return (
     <section className="py-16 px-6 max-w-7xl mx-auto font-sans">
       {/* Header */}
       <div className="mb-12">
-        <h2 className="text-4xl font-bold text-gray-900 mb-4">The services we provide</h2>
+        <span className="text-xs font-bold text-red-600 uppercase tracking-widest">What We Offer</span>
+        <h2 className="text-4xl font-bold text-gray-900 mt-2 mb-4">The services we provide</h2>
         <p className="text-gray-500 leading-relaxed max-w-3xl text-sm md:text-base">
           We deliver heavy industrial setups, equipment alignments, and field maintenance with over 7 years of specialized expertise.
         </p>
       </div>
 
-      {/* Services Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {services.map((service, index) => (
-          <ServiceCard key={service._id} service={service} index={index} />
+      {/* Grid — items-stretch ensures equal height rows */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+        {services.map((service) => (
+          <ServiceCard key={service._id} service={service} />
         ))}
       </div>
     </section>
