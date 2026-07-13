@@ -26,7 +26,9 @@ export default function MediaManager({
   const uploadFiles = async (fileList) => {
     const formData = new FormData();
     Array.from(fileList).forEach((f) => formData.append('files', f));
-    const res = await adminApi.post('/upload/multiple', formData);
+    const res = await adminApi.post('/upload/multiple', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return res.data.data || [];
   };
 
