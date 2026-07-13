@@ -41,9 +41,10 @@ export default function CranesPage() {
     return matchSearch && matchFilter;
   });
 
-  const openCreate = () => { setEditItem(null); setForm(emptyForm); setShowModal(true); };
+  const openCreate = () => { setEditItem(null); setForm({...emptyForm, customCategory: ''}); setShowModal(true); };
   const openEdit = (crane) => {
     setEditItem(crane);
+    const isCustomCategory = crane.category && !CATEGORIES.includes(crane.category);
     setForm({
       ...crane,
       images: crane.images?.length ? crane.images : (crane.image ? [crane.image] : []),
@@ -51,6 +52,7 @@ export default function CranesPage() {
       categories: (crane.categories || []).map(c => c._id || c),
       specs: Object.entries(crane.specs || {}).map(([k, v]) => `${k}: ${v}`).join('\n'),
       features: (crane.features || []).join('\n'),
+      customCategory: isCustomCategory ? crane.category : '',
     });
     setShowModal(true);
   };
@@ -69,7 +71,9 @@ export default function CranesPage() {
         });
       }
       const featuresArr = form.features ? form.features.split('\n').filter(Boolean) : [];
-      const payload = { ...form, specs: specsObj, features: featuresArr };
+      // eslint-disable-next-line no-unused-vars
+      const { customCategory, ...rest } = form;
+      const payload = { ...rest, specs: specsObj, features: featuresArr };
 
       if (editItem) {
         const res = await adminApi.put(`/cranes/${editItem._id}`, payload);
@@ -122,6 +126,10 @@ export default function CranesPage() {
         <select value={filter} onChange={e => setFilter(e.target.value)} className="admin-input w-40">
           <option value="">All Categories</option>
           {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+          {/* Show any custom categories from existing cranes */}
+          {[...new Set(cranes.map(c => c.category).filter(c => !CATEGORIES.includes(c)))].map(c => (
+            <option key={c} value={c}>{c}</option>
+          ))}
         </select>
       </div>
 
@@ -209,9 +217,17 @@ export default function CranesPage() {
                 </div>
                 <div>
                   <label className="admin-label">Category</label>
-                  <select className="admin-input" value={form.category} onChange={e => setForm(f => ({...f, category: e.target.value}))}>
+                  <select className="admin-input" value={CATEGORIES.includes(form.category) ? form.category : 'other'} onChange={e => setForm(f => ({...f, category: e.target.value, customCategory: ''}))}>
                     {CATEGORIES.map(c => <option key={c} value={c} className="capitalize">{c}</option>)}
                   </select>
+                  {(!CATEGORIES.includes(form.category) || form.category === 'other') && (
+                    <input
+                      className="admin-input mt-2"
+                      value={form.category === 'other' ? (form.customCategory || '') : form.category}
+                      onChange={e => setForm(f => ({...f, category: e.target.value || 'other', customCategory: e.target.value}))}
+                      placeholder="Enter custom category name (optional)"
+                    />
+                  )}
                 </div>
                 <div className="col-span-2">
                   <CategoryChecklist
