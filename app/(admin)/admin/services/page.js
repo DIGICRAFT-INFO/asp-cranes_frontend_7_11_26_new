@@ -6,7 +6,7 @@ import { Plus, Pencil, Trash2, Search, X, Loader2, Wrench, ToggleLeft, ToggleRig
 import MediaManager from '@/components/admin/MediaManager';
 import CategoryChecklist from '@/components/admin/CategoryChecklist';
 
-const emptyForm = { title: '', subtitle: '', description: '', image: '', images: [], attachments: [], categories: [], icon: '', isActive: true, isFeatured: false, order: 0, features: '' };
+const emptyForm = { title: '', subtitle: '', description: '', image: '', images: [], attachments: [], categories: [], icon: '', isActive: true, isFeatured: false, order: 0, features: '', externalUrl: '' };
 
 export default function ServicesPage() {
   const [items, setItems] = useState([]);
@@ -165,6 +165,18 @@ export default function ServicesPage() {
               <div>
                 <label className="admin-label">Features (one per line)</label>
                 <textarea className="admin-input resize-none" rows={3} {...F('features')} placeholder={"Safe operations\nCertified operators"} />
+              </div>
+              <div>
+                <label className="admin-label flex items-center gap-2">
+                  External URL
+                  <span className="text-slate-500 text-[10px] font-normal normal-case">(optional — card will open this link instead of detail page)</span>
+                </label>
+                <input
+                  className="admin-input"
+                  {...F('externalUrl')}
+                  placeholder="https://example.com/service-page"
+                  type="url"
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
