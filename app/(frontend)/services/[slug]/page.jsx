@@ -6,7 +6,9 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import Contact from "@/homepage/Contact";
 import hero1 from "@/public/homepage/hero1.jpg";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+// Server component: NEXT_PUBLIC_ vars are available at build time when set in Vercel
+// Set NEXT_PUBLIC_API_URL in Vercel dashboard → Project Settings → Environment Variables
+const API = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api").replace(/\/$/, '');
 
 async function getService(slug) {
   try {

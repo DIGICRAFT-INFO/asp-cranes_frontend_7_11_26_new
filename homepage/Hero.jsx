@@ -97,8 +97,8 @@ export default function Hero() {
               className="object-cover"
             />
 
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-black/60" />
+            {/* Overlay — left-to-right gradient for text readability on any image */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/10" />
 
             {/* CONTENT */}
             <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 flex items-center">
@@ -111,28 +111,37 @@ export default function Hero() {
                   {slide.title}
                 </h1>
 
-                <p className="text-gray-200 text-sm sm:text-base lg:text-lg mb-6">
-                  {slide.description}
+                <p className="text-gray-200 text-sm sm:text-base lg:text-lg mb-6 max-w-lg">
+                  {/* Strip common Hinglish phrases if present */}
+                  {(slide.description || '')
+                    .replace(/Aapka project,?\s*hamari zimmedari\.?/gi, '')
+                    .replace(/\s{2,}/g, ' ')
+                    .trim()}
                 </p>
 
                 <div className="flex flex-col w-full sm:flex-row gap-4 max-lg:items-center">
-                  {/* Button 1 - Dynamically Linked */}
-                  <Link 
-                    href={slide.btn1Link || "/about"} 
+                  {/* Button 1 */}
+                  <Link
+                    href={slide.btn1Link || "/about"}
                     className="flex items-center bg-white max-lg:pl-12 pl-4 justify-between border border-gray-800 rounded-md font-semibold text-gray-900 hover:bg-red-600 hover:text-white transition group"
                   >
-                    {slide.btn1Text}
+                    {slide.btn1Text || "About Us"}
                     <span className="px-4 py-2 max-lg:ml-12 ml-4 text-2xl rounded-r-md bg-red-600 text-white group-hover:bg-white group-hover:text-gray-800 transition">
                       »
                     </span>
                   </Link>
 
-                  {/* Button 2 - Dynamically Linked */}
-                  <Link 
+                  {/* Button 2 — same style as Button 1 */}
+                  <Link
                     href={slide.btn2Link || "/contact"}
-                    className="bg-white border text-black text-center hover:text-white hover:bg-red-600 transition max-lg:px-20 px-10 py-3 rounded-md font-semibold"
+                    className="flex items-center bg-white max-lg:pl-12 pl-4 justify-between border border-gray-800 rounded-md font-semibold text-gray-900 hover:bg-red-600 hover:text-white transition group"
                   >
-                    {slide.btn2Text}
+                    {/* Fix grammatically wrong "Get a Contact" */}
+                    {(slide.btn2Text || 'Get in Touch')
+                      .replace(/^get\s+a\s+contact$/i, 'Get in Touch')}
+                    <span className="px-4 py-2 max-lg:ml-12 ml-4 text-2xl rounded-r-md bg-red-600 text-white group-hover:bg-white group-hover:text-gray-800 transition">
+                      »
+                    </span>
                   </Link>
                 </div>
               </div>
