@@ -1,84 +1,84 @@
-import { notFound } from "next/navigation";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { CheckCircle2, ArrowLeft, Phone, Mail, ArrowRight } from "lucide-react";
-import Breadcrumbs from "@/components/Breadcrumbs";
+import { CheckCircle2, ArrowLeft, Phone, Mail, ArrowRight, Loader2, HardHat } from "lucide-react";
 import Contact from "@/homepage/Contact";
-import hero1 from "@/public/homepage/hero1.jpg";
+import { apiFetch } from "@/lib/api";
 
-// Server component: NEXT_PUBLIC_ vars are available at build time when set in Vercel
-// Set NEXT_PUBLIC_API_URL in Vercel dashboard → Project Settings → Environment Variables
-const API = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api").replace(/\/$/, '');
+export default function ServiceDetailPage() {
+  const { slug } = useParams();
+  const router = useRouter();
+  const [service, setService] = useState(null);
+  const [related, setRelated] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-async function getService(slug) {
-  try {
-    const res = await fetch(`${API}/services/${slug}`, { next: { revalidate: 60 } });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.success ? data.data : null;
-  } catch {
-    return null;
-  }
-}
+  useEffect(() => {
+    if (!slug) return;
+    Promise.all([
+      apiFetch(`/services/${slug}`).catch(() => null),
+      apiFetch("/services").catch(() => ({ data: [] })),
+    ]).then(([svc, all]) => {
+      if (!svc || !svc.success) { setNotFound(true); setLoading(false); return; }
+      setService(svc.data);
+      const others = (all.data || []).filter(s => s.slug !== slug).slice(0, 3);
+      setRelated(others);
+      setLoading(false);
+    });
+  }, [slug]);
 
-async function getAllServices() {
-  try {
-    const res = await fetch(`${API}/services`, { next: { revalidate: 60 } });
-    const data = await res.json();
-    return data.success ? data.data : [];
-  } catch {
-    return [];
-  }
-}
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <Loader2 className="w-10 h-10 text-red-600 animate-spin" />
+    </div>
+  );
 
-export async function generateMetadata({ params }) {
-  const service = await getService(params.slug);
-  if (!service) return { title: "Service Not Found" };
-  return {
-    title: `${service.title} | ASP Cranes`,
-    description: service.description?.slice(0, 155) || service.subtitle || "",
-  };
-}
-
-export default async function ServiceDetailPage({ params }) {
-  const [service, allServices] = await Promise.all([
-    getService(params.slug),
-    getAllServices(),
-  ]);
-
-  if (!service) notFound();
+  if (notFound) return (
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4 font-sans">
+      <HardHat className="w-16 h-16 text-red-200" />
+      <h1 className="text-2xl font-bold text-gray-800">Service not found</h1>
+      <Link href="/services" className="text-red-600 font-semibold hover:underline flex items-center gap-2">
+        <ArrowLeft className="w-4 h-4" /> Back to Services
+      </Link>
+    </div>
+  );
 
   const coverImage = service.images?.[0] || service.image || null;
   const galleryImages = service.images?.slice(1) || [];
-  const related = allServices.filter(s => s._id !== service._id && s.slug !== params.slug).slice(0, 3);
 
   return (
     <div className="font-sans">
       {/* Breadcrumb */}
-      <Breadcrumbs
-        breadcrumbImage={coverImage ? null : hero1}
-        breadcrumbImageSrc={coverImage || null}
-        title={service.title}
-        breadcrumbLabel={service.title}
-        parentPages={[
-          { label: "Home", href: "/" },
-          { label: "Services", href: "/services" },
-        ]}
-      />
+      <div className="bg-gray-900 text-white py-3 px-6">
+        <div className="max-w-7xl mx-auto flex items-center gap-2 text-xs text-gray-400">
+          <Link href="/" className="hover:text-red-400 transition">Home</Link>
+          <span>/</span>
+          <Link href="/services" className="hover:text-red-400 transition">Services</Link>
+          <span>/</span>
+          <span className="text-white">{service.title}</span>
+        </div>
+      </div>
 
-      {/* Hero image */}
-      {coverImage && (
+      {/* Hero Image */}
+      {coverImage ? (
         <div className="relative w-full h-72 md:h-96 overflow-hidden">
           <Image src={coverImage} alt={service.title} fill className="object-cover" priority />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 px-6 py-8 max-w-7xl mx-auto">
             <span className="text-xs font-bold text-red-400 uppercase tracking-widest">Our Services</span>
-            <h1 className="text-3xl md:text-5xl font-extrabold text-white mt-1 leading-tight drop-shadow">
-              {service.title}
-            </h1>
-            {service.subtitle && (
-              <p className="text-red-300 font-semibold mt-2 text-sm md:text-base">{service.subtitle}</p>
-            )}
+            <h1 className="text-3xl md:text-5xl font-extrabold text-white mt-1 leading-tight">{service.title}</h1>
+            {service.subtitle && <p className="text-red-300 font-semibold mt-2">{service.subtitle}</p>}
+          </div>
+        </div>
+      ) : (
+        <div className="bg-gray-900 py-16 px-6">
+          <div className="max-w-7xl mx-auto">
+            <span className="text-xs font-bold text-red-400 uppercase tracking-widest">Our Services</span>
+            <h1 className="text-4xl font-extrabold text-white mt-1">{service.title}</h1>
+            {service.subtitle && <p className="text-red-400 font-semibold mt-2">{service.subtitle}</p>}
           </div>
         </div>
       )}
@@ -86,26 +86,13 @@ export default async function ServiceDetailPage({ params }) {
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
-          {/* ── Main Content ─────────────────────────────────────────── */}
+          {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
 
-            {/* Title (if no cover image) */}
-            {!coverImage && (
-              <div>
-                <span className="text-xs font-bold text-red-600 uppercase tracking-widest">Our Services</span>
-                <h1 className="text-4xl font-extrabold text-gray-900 mt-1">{service.title}</h1>
-                {service.subtitle && <p className="text-red-600 font-semibold mt-2">{service.subtitle}</p>}
-              </div>
-            )}
-
-            {/* Description */}
             {service.description && (
-              <div className="prose prose-gray max-w-none">
-                <p className="text-gray-600 text-base leading-relaxed whitespace-pre-line">{service.description}</p>
-              </div>
+              <p className="text-gray-600 text-base leading-relaxed whitespace-pre-line">{service.description}</p>
             )}
 
-            {/* Features / Technical Checklist */}
             {service.features?.length > 0 && (
               <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
                 <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -123,7 +110,6 @@ export default async function ServiceDetailPage({ params }) {
               </div>
             )}
 
-            {/* Image Gallery */}
             {galleryImages.length > 0 && (
               <div>
                 <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -140,29 +126,23 @@ export default async function ServiceDetailPage({ params }) {
               </div>
             )}
 
-            {/* Back link */}
-            <Link href="/services"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-red-600 transition-colors">
+            <Link href="/services" className="inline-flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-red-600 transition-colors">
               <ArrowLeft className="w-4 h-4" /> Back to all services
             </Link>
           </div>
 
-          {/* ── Sidebar ──────────────────────────────────────────────── */}
+          {/* Sidebar */}
           <div className="space-y-6">
-
-            {/* CTA Card */}
             <div className="bg-red-600 rounded-2xl p-6 text-white shadow-lg">
               <h3 className="text-lg font-bold mb-2">Book This Service</h3>
               <p className="text-red-100 text-sm leading-relaxed mb-5">
-                Get a free quote for {service.title}. Our team will respond within 24 hours.
+                Get a free quote for {service.title}. Our team responds within 24 hours.
               </p>
-              <Link href="/contact"
-                className="block text-center bg-white text-red-600 font-bold py-3 px-6 rounded-xl hover:bg-red-50 transition-colors text-sm">
+              <Link href="/contact" className="block text-center bg-white text-red-600 font-bold py-3 px-6 rounded-xl hover:bg-red-50 transition-colors text-sm">
                 Get a Free Quote →
               </Link>
             </div>
 
-            {/* Contact quick links */}
             <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100 space-y-3">
               <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Quick Contact</h3>
               <a href="tel:+919876543210" className="flex items-center gap-3 text-sm text-gray-600 hover:text-red-600 transition-colors">
@@ -173,14 +153,12 @@ export default async function ServiceDetailPage({ params }) {
               </a>
             </div>
 
-            {/* Related Services */}
             {related.length > 0 && (
               <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
                 <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-4">Other Services</h3>
                 <div className="space-y-3">
                   {related.map((s) => (
-                    <Link key={s._id} href={`/services/${s.slug}`}
-                      className="flex items-center gap-3 group">
+                    <Link key={s._id} href={`/services/${s.slug}`} className="flex items-center gap-3 group">
                       {(s.images?.[0] || s.image) && (
                         <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
                           <Image src={s.images?.[0] || s.image} alt={s.title} fill className="object-cover" />
