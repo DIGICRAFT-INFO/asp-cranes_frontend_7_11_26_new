@@ -37,8 +37,7 @@ export default function Navbar() {
           <div className="hidden lg:block">
             <Link href="/contact">
               <button className="bg-red-600 hover:bg-white hover:text-black rounded-sm border border-red-600 text-white text-sm font-semibold px-3 py-2 transition">
-                Request a Quote
-              </button>
+Contact Us              </button>
             </Link>
           </div>
 
@@ -70,8 +69,7 @@ export default function Navbar() {
 
           <Link href="/contact" onClick={() => setOpen(false)}>
             <button className="mt-4 bg-red-600 hover:bg-white hover:text-black rounded-sm border border-red-600 text-white text-sm font-semibold px-6 py-3 transition">
-              Request a Quote
-            </button>
+Contact Us            </button>
           </Link>
         </nav>
       </div>
