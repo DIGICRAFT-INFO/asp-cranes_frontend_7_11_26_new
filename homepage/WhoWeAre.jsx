@@ -61,8 +61,21 @@ export default function WhoWeAre() {
 
   return (
     <section className="py-20 bg-white flex flex-col justify-center items-center">
-      <div className="text-center mb-14">
-        <h2 className="text-3xl font-bold text-red-600">WHO WE ARE</h2>
+      {/* Section Heading — consistent with Services, Products, Projects */}
+      <div className="text-center mb-14 px-6">
+        <p className="text-sm font-semibold text-red-600 uppercase tracking-widest mb-2">
+          Our Identity
+        </p>
+        <h2
+          className="text-4xl md:text-5xl font-bold text-gray-900"
+          style={{ fontFamily: "'Poppins', sans-serif" }}
+        >
+          Who We <span className="text-red-600">Are</span>
+        </h2>
+        <p className="mt-4 text-gray-500 max-w-2xl mx-auto text-base">
+          A trusted name in crane rental and heavy lifting — delivering precision,
+          safety, and reliability across industries nationwide.
+        </p>
       </div>
       
       <motion.div

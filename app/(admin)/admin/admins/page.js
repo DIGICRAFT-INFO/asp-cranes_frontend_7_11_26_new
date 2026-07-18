@@ -104,12 +104,29 @@ export default function AdminsPage() {
   const selectAllPages = () => setForm(f => ({ ...f, allowedPages: ALL_PAGES.map(p => p.key) }));
   const clearAllPages = () => setForm(f => ({ ...f, allowedPages: [] }));
 
+  const validateForm = (isCreate) => {
+    if (!form.name.trim()) { toast.error('Full name is required'); return false; }
+    if (!form.email.trim()) { toast.error('Email address is required'); return false; }
+    // Basic email format check
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email.trim())) {
+      toast.error('Enter a valid email address (e.g. admin@example.com)');
+      return false;
+    }
+    if (isCreate || form.password) {
+      if (!form.password) { toast.error('Password is required'); return false; }
+      if (form.password.length < 8) { toast.error('Password must be at least 8 characters'); return false; }
+      if (!/[A-Z]/.test(form.password)) { toast.error('Password must include at least one uppercase letter'); return false; }
+      if (!/[a-z]/.test(form.password)) { toast.error('Password must include at least one lowercase letter'); return false; }
+      if (!/\d/.test(form.password)) { toast.error('Password must include at least one number'); return false; }
+      if (!/[!@#$%^&*]/.test(form.password)) { toast.error('Password must include at least one special character: ! @ # $ % ^ & *'); return false; }
+    }
+    return true;
+  };
+
   const handleCreate = async (e) => {
     e.preventDefault();
-    if (!form.name.trim() || !form.email.trim() || !form.password) {
-      return toast.error('Name, email and password are required');
-    }
-    if (form.password.length < 6) return toast.error('Password must be at least 6 characters');
+    if (!validateForm(true)) return;
     setSaving(true);
     try {
       await adminApi.post('/auth/admins', form);
@@ -117,7 +134,13 @@ export default function AdminsPage() {
       closeModal();
       fetchAdmins();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to create admin');
+      // Show detailed validation errors from backend if available
+      const backendErrors = err.response?.data?.errors;
+      if (backendErrors && backendErrors.length > 0) {
+        toast.error(backendErrors[0].msg);
+      } else {
+        toast.error(err.response?.data?.message || 'Failed to create admin');
+      }
     } finally {
       setSaving(false);
     }
@@ -125,8 +148,7 @@ export default function AdminsPage() {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-    if (!form.name.trim() || !form.email.trim()) return toast.error('Name and email required');
-    if (form.password && form.password.length < 6) return toast.error('Password must be at least 6 characters');
+    if (!validateForm(false)) return;
     setSaving(true);
     try {
       const payload = { name: form.name, email: form.email, allowedPages: form.allowedPages };
@@ -136,7 +158,12 @@ export default function AdminsPage() {
       closeModal();
       fetchAdmins();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to update admin');
+      const backendErrors = err.response?.data?.errors;
+      if (backendErrors && backendErrors.length > 0) {
+        toast.error(backendErrors[0].msg);
+      } else {
+        toast.error(err.response?.data?.message || 'Failed to update admin');
+      }
     } finally {
       setSaving(false);
     }

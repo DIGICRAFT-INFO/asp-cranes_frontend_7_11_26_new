@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // NEXT_PUBLIC_API_URL is passed through automatically (it's a NEXT_PUBLIC_ var)
-  // Set it in Vercel dashboard → Project Settings → Environment Variables
+  // NEXT_PUBLIC_API_URL is read from .env or Hostinger environment variables
+  // https://aspcranes.com  → frontend
+  // https://api.aspcranes.com → backend
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '**' },
