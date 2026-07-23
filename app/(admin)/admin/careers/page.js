@@ -10,7 +10,7 @@ import {
 
 // ─── JOBS TAB ─────────────────────────────────────────────────────────────────
 const emptyForm = {
-  title: '', department: 'General', location: 'On-site', employmentType: 'Full-time',
+  title: '', department: 'General', location: 'On-site', employmentType: 'Full Time',
   experience: '', description: '', responsibilities: '', requirements: '',
   isActive: true, order: 0,
 };
@@ -133,7 +133,7 @@ function JobsTab() {
                 <div><label className="admin-label">Location</label><input className="admin-input" {...F('location')} placeholder="e.g. Pune, Maharashtra" /></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div><label className="admin-label">Employment Type</label><select className="admin-input" {...F('employmentType')}><option>Full-time</option><option>Part-time</option><option>Contract</option><option>Internship</option></select></div>
+                <div><label className="admin-label">Employment Type</label><select className="admin-input" {...F('employmentType')}><option>Full Time</option><option>Part Time</option><option>Contract</option><option>Internship</option></select></div>
                 <div><label className="admin-label">Experience</label><input className="admin-input" {...F('experience')} placeholder="e.g. 2-4 years" /></div>
               </div>
               <div><label className="admin-label">Description</label><textarea className="admin-input resize-none" rows={3} {...F('description')} placeholder="Role overview..." /></div>
